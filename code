@@ -1,0 +1,50 @@
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+public class AddCollaborator {
+    public static void main(String[] args) {
+        try {
+            // Replace with your repo owner and repo name
+            String owner = "YOUR_GITHUB_USERNAME";
+            String repo = "YOUR_REPOSITORY_NAME";
+
+            // The username of the collaborator you want to add
+            String collaborator = "COLLABORATOR_USERNAME";
+
+            // Your GitHub Personal Access Token (with repo permissions)
+            String token = "YOUR_PERSONAL_ACCESS_TOKEN";
+
+            // GitHub API URL
+            String apiUrl = "https://api.github.com/repos/" + owner + "/" + repo + "/collaborators/" + collaborator;
+
+            // Create connection
+            URL url = new URL(apiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+
+            // Authentication
+            connection.setRequestProperty("Authorization", "token " + token);
+            connection.setRequestProperty("Accept", "application/vnd.github.v3+json");
+
+            // Optional: permission body (push, pull, admin)
+            String jsonInput = "{\"permission\":\"push\"}";
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInput.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 201 || responseCode == 204) {
+                System.out.println("Collaborator added successfully!");
+            } else {
+                System.out.println("Failed to add collaborator. Response code: " + responseCode);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
